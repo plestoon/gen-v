@@ -1,0 +1,4 @@
+rust_input: rust/src/api/**/*.rs
+rust_output: rust/src/ffi/frb_generated.rs
+dart_output: lib/ffi
+add_mod_to_lib: false
