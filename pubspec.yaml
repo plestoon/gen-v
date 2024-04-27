@@ -37,7 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   rust_lib_gen_x:
     path: rust_builder
-  flutter_rust_bridge: 2.0.0-dev.28
+  flutter_rust_bridge: ^2.0.0-dev.32
   freezed_annotation: ^2.4.1
   file_picker: ^6.2.0
   flex_color_scheme: ^7.3.1

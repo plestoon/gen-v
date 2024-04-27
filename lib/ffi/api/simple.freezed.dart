@@ -107,8 +107,8 @@ class __$$Cipher_RsaImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$Cipher_RsaImpl implements Cipher_Rsa {
-  const _$Cipher_RsaImpl(this.field0);
+class _$Cipher_RsaImpl extends Cipher_Rsa {
+  const _$Cipher_RsaImpl(this.field0) : super._();
 
   @override
   final int field0;
@@ -198,8 +198,9 @@ class _$Cipher_RsaImpl implements Cipher_Rsa {
   }
 }
 
-abstract class Cipher_Rsa implements Cipher {
+abstract class Cipher_Rsa extends Cipher {
   const factory Cipher_Rsa(final int field0) = _$Cipher_RsaImpl;
+  const Cipher_Rsa._() : super._();
 
   @override
   int get field0;
@@ -241,8 +242,8 @@ class __$$Cipher_EcdsaImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$Cipher_EcdsaImpl implements Cipher_Ecdsa {
-  const _$Cipher_EcdsaImpl(this.field0);
+class _$Cipher_EcdsaImpl extends Cipher_Ecdsa {
+  const _$Cipher_EcdsaImpl(this.field0) : super._();
 
   @override
   final EcdsaCurve field0;
@@ -332,8 +333,9 @@ class _$Cipher_EcdsaImpl implements Cipher_Ecdsa {
   }
 }
 
-abstract class Cipher_Ecdsa implements Cipher {
+abstract class Cipher_Ecdsa extends Cipher {
   const factory Cipher_Ecdsa(final EcdsaCurve field0) = _$Cipher_EcdsaImpl;
+  const Cipher_Ecdsa._() : super._();
 
   @override
   EcdsaCurve get field0;
@@ -419,8 +421,8 @@ class __$$Issuer_CertSelfImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$Issuer_CertSelfImpl implements Issuer_CertSelf {
-  const _$Issuer_CertSelfImpl();
+class _$Issuer_CertSelfImpl extends Issuer_CertSelf {
+  const _$Issuer_CertSelfImpl() : super._();
 
   @override
   String toString() {
@@ -499,8 +501,9 @@ class _$Issuer_CertSelfImpl implements Issuer_CertSelf {
   }
 }
 
-abstract class Issuer_CertSelf implements Issuer {
+abstract class Issuer_CertSelf extends Issuer {
   const factory Issuer_CertSelf() = _$Issuer_CertSelfImpl;
+  const Issuer_CertSelf._() : super._();
 }
 
 /// @nodoc
@@ -536,8 +539,8 @@ class __$$Issuer_CAImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$Issuer_CAImpl implements Issuer_CA {
-  const _$Issuer_CAImpl(this.field0);
+class _$Issuer_CAImpl extends Issuer_CA {
+  const _$Issuer_CAImpl(this.field0) : super._();
 
   @override
   final CertFiles field0;
@@ -627,8 +630,9 @@ class _$Issuer_CAImpl implements Issuer_CA {
   }
 }
 
-abstract class Issuer_CA implements Issuer {
+abstract class Issuer_CA extends Issuer {
   const factory Issuer_CA(final CertFiles field0) = _$Issuer_CAImpl;
+  const Issuer_CA._() : super._();
 
   CertFiles get field0;
   @JsonKey(ignore: true)

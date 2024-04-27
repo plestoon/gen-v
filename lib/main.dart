@@ -3,7 +3,10 @@ import 'package:gen_x/tls/tls_view.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'ffi/frb_generated.dart';
+
 void main() {
+  RustLib.init();
   runApp(const App());
 }
 
