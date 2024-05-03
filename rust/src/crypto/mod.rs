@@ -1,13 +1,13 @@
 use ::rsa::pkcs8::DecodePrivateKey;
 use anyhow::{anyhow, Result};
 use const_oid::AssociatedOid;
-use der::asn1::BitString;
 use der::{Document, SecretDocument};
+use der::asn1::BitString;
 use p224::NistP224;
 use p256::NistP256;
 use p384::NistP384;
 use pkcs8::EncodePrivateKey;
-use sha2::{Sha256, Sha512};
+use sha2::Sha256;
 use signature::{Keypair, Signer};
 use spki::{
     AlgorithmIdentifierOwned, AlgorithmIdentifierRef, DynSignatureAlgorithmIdentifier,
@@ -38,7 +38,6 @@ impl SignatureBitStringEncoding for Signature {
 #[derive(Clone)]
 pub enum VerifyingKey {
     RsaSha256(::rsa::pkcs1v15::VerifyingKey<Sha256>),
-    RsaSha512(::rsa::pkcs1v15::VerifyingKey<Sha512>),
     EcdsaP224(::ecdsa::VerifyingKey<NistP224>),
     EcdsaP256(::ecdsa::VerifyingKey<NistP256>),
     EcdsaP384(::ecdsa::VerifyingKey<NistP384>),
@@ -48,7 +47,6 @@ impl EncodePublicKey for VerifyingKey {
     fn to_public_key_der(&self) -> spki::Result<Document> {
         match self {
             VerifyingKey::RsaSha256(key) => key.to_public_key_der(),
-            VerifyingKey::RsaSha512(key) => key.to_public_key_der(),
             VerifyingKey::EcdsaP224(key) => key.to_public_key_der(),
             VerifyingKey::EcdsaP256(key) => key.to_public_key_der(),
             VerifyingKey::EcdsaP384(key) => key.to_public_key_der(),
@@ -59,7 +57,6 @@ impl EncodePublicKey for VerifyingKey {
 #[derive(Clone)]
 pub enum SigningKey {
     RsaSha256(::rsa::pkcs1v15::SigningKey<Sha256>),
-    RsaSha512(::rsa::pkcs1v15::SigningKey<Sha512>),
     EcdsaP224(ecdsa::SigningKey<NistP224>),
     EcdsaP256(ecdsa::SigningKey<NistP256>),
     EcdsaP384(ecdsa::SigningKey<NistP384>),
@@ -95,7 +92,6 @@ impl Signer<Signature> for SigningKey {
     fn try_sign(&self, msg: &[u8]) -> signature::Result<Signature> {
         match self {
             SigningKey::RsaSha256(key) => key.try_sign(msg).map(|sig| Signature::RsaSignature(sig)),
-            SigningKey::RsaSha512(key) => key.try_sign(msg).map(|sig| Signature::RsaSignature(sig)),
             SigningKey::EcdsaP224(key) => key
                 .try_sign(msg)
                 .map(|sig| Signature::EcdsaSignatureP224(sig)),
@@ -115,7 +111,6 @@ impl Keypair for SigningKey {
     fn verifying_key(&self) -> Self::VerifyingKey {
         match self {
             SigningKey::RsaSha256(key) => VerifyingKey::RsaSha256(key.verifying_key().clone()),
-            SigningKey::RsaSha512(key) => VerifyingKey::RsaSha512(key.verifying_key().clone()),
             SigningKey::EcdsaP224(key) => VerifyingKey::EcdsaP224(key.verifying_key().clone()),
             SigningKey::EcdsaP256(key) => VerifyingKey::EcdsaP256(key.verifying_key().clone()),
             SigningKey::EcdsaP384(key) => VerifyingKey::EcdsaP384(key.verifying_key().clone()),
@@ -127,7 +122,6 @@ impl DynSignatureAlgorithmIdentifier for SigningKey {
     fn signature_algorithm_identifier(&self) -> spki::Result<AlgorithmIdentifierOwned> {
         match self {
             SigningKey::RsaSha256(key) => key.signature_algorithm_identifier(),
-            SigningKey::RsaSha512(key) => key.signature_algorithm_identifier(),
             SigningKey::EcdsaP224(key) => key.signature_algorithm_identifier(),
             SigningKey::EcdsaP256(key) => key.signature_algorithm_identifier(),
             SigningKey::EcdsaP384(key) => key.signature_algorithm_identifier(),
@@ -139,7 +133,6 @@ impl EncodePrivateKey for SigningKey {
     fn to_pkcs8_der(&self) -> pkcs8::Result<SecretDocument> {
         match self {
             SigningKey::RsaSha256(key) => key.to_pkcs8_der(),
-            SigningKey::RsaSha512(key) => key.to_pkcs8_der(),
             SigningKey::EcdsaP224(key) => key.to_pkcs8_der(),
             SigningKey::EcdsaP256(key) => key.to_pkcs8_der(),
             SigningKey::EcdsaP384(key) => key.to_pkcs8_der(),

@@ -8,85 +8,77 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'simple.freezed.dart';
 
-Future<CertData> genTlsCert(
-        {required CertProfile certProfile,
-        List<String>? domainNames,
-        required List<SubjectRdn> subject,
-        required Issuer issuer,
-        required Cipher cipher,
+// The type `CertFiles` is not used by any `pub` functions, thus it is ignored.
+// The type `CertPair` is not used by any `pub` functions, thus it is ignored.
+
+Future<CertPairPem> genServerCert(
+        {required List<Rdn> subject,
+        required List<String> subjectAltNames,
+        required KeyCipher keyCipher,
         required int validity,
-        required KeyFormat format,
+        CertPairPem? issuer,
         dynamic hint}) =>
-    RustLib.instance.api.genTlsCert(
-        certProfile: certProfile,
-        domainNames: domainNames,
+    RustLib.instance.api.genServerCert(
         subject: subject,
-        issuer: issuer,
-        cipher: cipher,
+        subjectAltNames: subjectAltNames,
+        keyCipher: keyCipher,
         validity: validity,
-        format: format,
+        issuer: issuer,
         hint: hint);
 
-class CertData {
-  final Uint8List cert;
-  final Uint8List key;
+Future<CertPairPem> genClientCert(
+        {required List<Rdn> subject,
+        required KeyCipher keyCipher,
+        required int validity,
+        CertPairPem? issuer,
+        dynamic hint}) =>
+    RustLib.instance.api.genClientCert(
+        subject: subject,
+        keyCipher: keyCipher,
+        validity: validity,
+        issuer: issuer,
+        hint: hint);
 
-  const CertData({
-    required this.cert,
+Future<CertPairPem> genRootCaCert(
+        {required List<Rdn> subject,
+        required KeyCipher keyCipher,
+        required int validity,
+        dynamic hint}) =>
+    RustLib.instance.api.genRootCaCert(
+        subject: subject, keyCipher: keyCipher, validity: validity, hint: hint);
+
+Future<CertPairPem> genSubCaCert(
+        {required List<Rdn> subject,
+        required KeyCipher keyCipher,
+        required int validity,
+        required CertPairPem issuer,
+        dynamic hint}) =>
+    RustLib.instance.api.genSubCaCert(
+        subject: subject,
+        keyCipher: keyCipher,
+        validity: validity,
+        issuer: issuer,
+        hint: hint);
+
+class CertPairPem {
+  final String chain;
+  final String key;
+
+  const CertPairPem({
+    required this.chain,
     required this.key,
   });
 
   @override
-  int get hashCode => cert.hashCode ^ key.hashCode;
+  int get hashCode => chain.hashCode ^ key.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CertData &&
+      other is CertPairPem &&
           runtimeType == other.runtimeType &&
-          cert == other.cert &&
+          chain == other.chain &&
           key == other.key;
-}
-
-class CertFiles {
-  final String certPath;
-  final String keyPath;
-
-  const CertFiles({
-    required this.certPath,
-    required this.keyPath,
-  });
-
-  @override
-  int get hashCode => certPath.hashCode ^ keyPath.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CertFiles &&
-          runtimeType == other.runtimeType &&
-          certPath == other.certPath &&
-          keyPath == other.keyPath;
-}
-
-enum CertProfile {
-  client,
-  server,
-  rootCa,
-  subCa,
-  ;
-}
-
-@freezed
-sealed class Cipher with _$Cipher {
-  const Cipher._();
-
-  const factory Cipher.rsa(
-    int field0,
-  ) = Cipher_Rsa;
-  const factory Cipher.ecdsa(
-    EcdsaCurve field0,
-  ) = Cipher_Ecdsa;
 }
 
 enum EcdsaCurve {
@@ -97,38 +89,44 @@ enum EcdsaCurve {
 }
 
 @freezed
-sealed class Issuer with _$Issuer {
-  const Issuer._();
+sealed class KeyCipher with _$KeyCipher {
+  const KeyCipher._();
 
-  const factory Issuer.certSelf() = Issuer_CertSelf;
-  const factory Issuer.ca(
-    CertFiles field0,
-  ) = Issuer_CA;
+  const factory KeyCipher.rsa(
+    int field0,
+  ) = KeyCipher_Rsa;
+  const factory KeyCipher.ecdsa(
+    EcdsaCurve field0,
+  ) = KeyCipher_Ecdsa;
 }
 
-enum KeyFormat {
-  pem,
-  der,
-  ;
-}
-
-class SubjectRdn {
-  final String name;
+class Rdn {
+  final RdnType rdnType;
   final String value;
 
-  const SubjectRdn({
-    required this.name,
+  const Rdn({
+    required this.rdnType,
     required this.value,
   });
 
   @override
-  int get hashCode => name.hashCode ^ value.hashCode;
+  int get hashCode => rdnType.hashCode ^ value.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is SubjectRdn &&
+      other is Rdn &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
+          rdnType == other.rdnType &&
           value == other.value;
+}
+
+enum RdnType {
+  commonName,
+  countryName,
+  stateOrProvinceName,
+  localityName,
+  organizationName,
+  organizationalUnitName,
+  ;
 }

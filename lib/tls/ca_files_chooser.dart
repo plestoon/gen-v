@@ -1,15 +1,15 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
-import '../ffi/api/simple.dart';
+import 'models.dart';
 
 class CaFilesChooser extends StatefulWidget {
-  final CertFiles? certFiles;
-  final ValueChanged<CertFiles?> onChanged;
+  final CertFilePaths? initialValue;
+  final ValueChanged<CertFilePaths> onChanged;
 
   const CaFilesChooser({
     super.key,
-    this.certFiles,
+    this.initialValue,
     required this.onChanged,
   });
 
@@ -18,31 +18,31 @@ class CaFilesChooser extends StatefulWidget {
 }
 
 class _CaFilesChooser extends State<CaFilesChooser> {
-  final _certPathController = TextEditingController();
+  final _chainPathController = TextEditingController();
   final _keyPathController = TextEditingController();
 
   @override
   void initState() {
-    if (widget.certFiles != null) {
-      _certPathController.text = widget.certFiles!.certPath;
-      _keyPathController.text = widget.certFiles!.keyPath;
+    if (widget.initialValue != null) {
+      _chainPathController.text = widget.initialValue!.chainPath;
+      _keyPathController.text = widget.initialValue!.keyPath;
     }
 
     super.initState();
   }
 
-  void _onSelectCaCertFile() async {
+  void _onSelectChainFile() async {
     final path = await FilePicker.platform
-        .pickFiles(dialogTitle: "Select CA certificate");
+        .pickFiles(dialogTitle: "Select CA certificate chain");
 
     if (path != null) {
-      _certPathController.text = path.paths[0]!;
+      _chainPathController.text = path.paths[0]!;
 
       _onChanged();
     }
   }
 
-  void _onSelectCaKeyFile() async {
+  void _onSelectKeyFile() async {
     final path =
         await FilePicker.platform.pickFiles(dialogTitle: "Select CA key");
 
@@ -55,8 +55,9 @@ class _CaFilesChooser extends State<CaFilesChooser> {
 
   void _onChanged() {
     widget.onChanged(
-      CertFiles(
-          certPath: _certPathController.text, keyPath: _keyPathController.text),
+      CertFilePaths(
+          chainPath: _chainPathController.text,
+          keyPath: _keyPathController.text),
     );
   }
 
@@ -71,7 +72,7 @@ class _CaFilesChooser extends State<CaFilesChooser> {
             IconButton(
               iconSize: 20,
               icon: const Icon(Icons.file_open_outlined),
-              onPressed: _onSelectCaCertFile,
+              onPressed: _onSelectChainFile,
             ),
             const SizedBox(
               width: 4,
@@ -79,10 +80,11 @@ class _CaFilesChooser extends State<CaFilesChooser> {
             Expanded(
               child: TextField(
                 enabled: false,
-                controller: _certPathController,
+                controller: _chainPathController,
                 style: const TextStyle(fontSize: 12),
                 decoration: const InputDecoration(
-                    isDense: true, hintText: "Choose certificate file .."),
+                    isDense: true,
+                    hintText: "Choose certificate chain file .."),
               ),
             ),
           ],
@@ -93,7 +95,7 @@ class _CaFilesChooser extends State<CaFilesChooser> {
             IconButton(
               iconSize: 20,
               icon: const Icon(Icons.file_open_outlined),
-              onPressed: _onSelectCaKeyFile,
+              onPressed: _onSelectKeyFile,
             ),
             const SizedBox(
               width: 4,

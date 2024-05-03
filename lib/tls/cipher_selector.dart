@@ -7,8 +7,8 @@ import '../widgets/segmented_group.dart';
 enum _CipherAlgorithm { rsa, ecdsa }
 
 class CipherSelector extends StatefulWidget {
-  final Cipher? initialValue;
-  final ValueChanged<Cipher> onChanged;
+  final KeyCipher? initialValue;
+  final ValueChanged<KeyCipher> onChanged;
 
   const CipherSelector(
       {super.key, required this.initialValue, required this.onChanged});
@@ -27,10 +27,10 @@ class _CipherSelectorState extends State<CipherSelector> {
     final initialValue = widget.initialValue;
 
     if (initialValue != null) {
-      if (initialValue is Cipher_Rsa) {
+      if (initialValue is KeyCipher_Rsa) {
         _algorithm = _CipherAlgorithm.rsa;
         _rsaKeySize = initialValue.field0;
-      } else if (initialValue is Cipher_Ecdsa) {
+      } else if (initialValue is KeyCipher_Ecdsa) {
         _algorithm = _CipherAlgorithm.ecdsa;
         _ecdsaCurve = initialValue.field0;
       }
@@ -61,9 +61,9 @@ class _CipherSelectorState extends State<CipherSelector> {
 
   void _onChanged() {
     if (_algorithm == _CipherAlgorithm.rsa) {
-      widget.onChanged(Cipher.rsa(_rsaKeySize));
+      widget.onChanged(KeyCipher.rsa(_rsaKeySize));
     } else if (_algorithm == _CipherAlgorithm.ecdsa) {
-      widget.onChanged(Cipher.ecdsa(_ecdsaCurve));
+      widget.onChanged(KeyCipher.ecdsa(_ecdsaCurve));
     }
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../ffi/api/simple.dart' as ffi;
 import 'generator_form.dart';
+import 'models.dart';
 
 class TlsView extends StatefulWidget {
   const TlsView({super.key});
@@ -33,16 +33,16 @@ class _TlsViewState extends State<TlsView> {
         body: const TabBarView(
           children: [
             GeneratorForm(
-              certProfile: ffi.CertProfile.server,
+              certProfile: CertProfile.server,
             ),
             GeneratorForm(
-              certProfile: ffi.CertProfile.client,
+              certProfile: CertProfile.client,
             ),
             GeneratorForm(
-              certProfile: ffi.CertProfile.rootCa,
+              certProfile: CertProfile.rootCa,
             ),
             GeneratorForm(
-              certProfile: ffi.CertProfile.subCa,
+              certProfile: CertProfile.subCa,
             ),
           ],
         ),

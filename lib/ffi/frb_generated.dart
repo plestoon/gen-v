@@ -56,7 +56,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.0.0-dev.32';
 
   @override
-  int get rustContentHash => -819832773;
+  int get rustContentHash => -682055461;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -67,14 +67,32 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<CertData> genTlsCert(
-      {required CertProfile certProfile,
-      List<String>? domainNames,
-      required List<SubjectRdn> subject,
-      required Issuer issuer,
-      required Cipher cipher,
+  Future<CertPairPem> genClientCert(
+      {required List<Rdn> subject,
+      required KeyCipher keyCipher,
       required int validity,
-      required KeyFormat format,
+      CertPairPem? issuer,
+      dynamic hint});
+
+  Future<CertPairPem> genRootCaCert(
+      {required List<Rdn> subject,
+      required KeyCipher keyCipher,
+      required int validity,
+      dynamic hint});
+
+  Future<CertPairPem> genServerCert(
+      {required List<Rdn> subject,
+      required List<String> subjectAltNames,
+      required KeyCipher keyCipher,
+      required int validity,
+      CertPairPem? issuer,
+      dynamic hint});
+
+  Future<CertPairPem> genSubCaCert(
+      {required List<Rdn> subject,
+      required KeyCipher keyCipher,
+      required int validity,
+      required CertPairPem issuer,
       dynamic hint});
 
   Future<void> initApp({dynamic hint});
@@ -89,58 +107,141 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<CertData> genTlsCert(
-      {required CertProfile certProfile,
-      List<String>? domainNames,
-      required List<SubjectRdn> subject,
-      required Issuer issuer,
-      required Cipher cipher,
+  Future<CertPairPem> genClientCert(
+      {required List<Rdn> subject,
+      required KeyCipher keyCipher,
       required int validity,
-      required KeyFormat format,
+      CertPairPem? issuer,
       dynamic hint}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
-        sse_encode_cert_profile(certProfile, serializer);
-        sse_encode_opt_list_String(domainNames, serializer);
-        sse_encode_list_subject_rdn(subject, serializer);
-        sse_encode_box_autoadd_issuer(issuer, serializer);
-        sse_encode_box_autoadd_cipher(cipher, serializer);
-        sse_encode_u_32(validity, serializer);
-        sse_encode_key_format(format, serializer);
+        sse_encode_list_rdn(subject, serializer);
+        sse_encode_box_autoadd_key_cipher(keyCipher, serializer);
+        sse_encode_i_64(validity, serializer);
+        sse_encode_opt_box_autoadd_cert_pair_pem(issuer, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 2, port: port_);
+            funcId: 3, port: port_);
       },
       codec: SseCodec(
-        decodeSuccessData: sse_decode_cert_data,
+        decodeSuccessData: sse_decode_cert_pair_pem,
         decodeErrorData: sse_decode_AnyhowException,
       ),
-      constMeta: kGenTlsCertConstMeta,
-      argValues: [
-        certProfile,
-        domainNames,
-        subject,
-        issuer,
-        cipher,
-        validity,
-        format
-      ],
+      constMeta: kGenClientCertConstMeta,
+      argValues: [subject, keyCipher, validity, issuer],
       apiImpl: this,
       hint: hint,
     ));
   }
 
-  TaskConstMeta get kGenTlsCertConstMeta => const TaskConstMeta(
-        debugName: "gen_tls_cert",
+  TaskConstMeta get kGenClientCertConstMeta => const TaskConstMeta(
+        debugName: "gen_client_cert",
+        argNames: ["subject", "keyCipher", "validity", "issuer"],
+      );
+
+  @override
+  Future<CertPairPem> genRootCaCert(
+      {required List<Rdn> subject,
+      required KeyCipher keyCipher,
+      required int validity,
+      dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_rdn(subject, serializer);
+        sse_encode_box_autoadd_key_cipher(keyCipher, serializer);
+        sse_encode_i_64(validity, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 4, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_cert_pair_pem,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kGenRootCaCertConstMeta,
+      argValues: [subject, keyCipher, validity],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kGenRootCaCertConstMeta => const TaskConstMeta(
+        debugName: "gen_root_ca_cert",
+        argNames: ["subject", "keyCipher", "validity"],
+      );
+
+  @override
+  Future<CertPairPem> genServerCert(
+      {required List<Rdn> subject,
+      required List<String> subjectAltNames,
+      required KeyCipher keyCipher,
+      required int validity,
+      CertPairPem? issuer,
+      dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_rdn(subject, serializer);
+        sse_encode_list_String(subjectAltNames, serializer);
+        sse_encode_box_autoadd_key_cipher(keyCipher, serializer);
+        sse_encode_i_64(validity, serializer);
+        sse_encode_opt_box_autoadd_cert_pair_pem(issuer, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 2, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_cert_pair_pem,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kGenServerCertConstMeta,
+      argValues: [subject, subjectAltNames, keyCipher, validity, issuer],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kGenServerCertConstMeta => const TaskConstMeta(
+        debugName: "gen_server_cert",
         argNames: [
-          "certProfile",
-          "domainNames",
           "subject",
-          "issuer",
-          "cipher",
+          "subjectAltNames",
+          "keyCipher",
           "validity",
-          "format"
+          "issuer"
         ],
+      );
+
+  @override
+  Future<CertPairPem> genSubCaCert(
+      {required List<Rdn> subject,
+      required KeyCipher keyCipher,
+      required int validity,
+      required CertPairPem issuer,
+      dynamic hint}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_list_rdn(subject, serializer);
+        sse_encode_box_autoadd_key_cipher(keyCipher, serializer);
+        sse_encode_i_64(validity, serializer);
+        sse_encode_box_autoadd_cert_pair_pem(issuer, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 5, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_cert_pair_pem,
+        decodeErrorData: sse_decode_AnyhowException,
+      ),
+      constMeta: kGenSubCaCertConstMeta,
+      argValues: [subject, keyCipher, validity, issuer],
+      apiImpl: this,
+      hint: hint,
+    ));
+  }
+
+  TaskConstMeta get kGenSubCaCertConstMeta => const TaskConstMeta(
+        debugName: "gen_sub_ca_cert",
+        argNames: ["subject", "keyCipher", "validity", "issuer"],
       );
 
   @override
@@ -180,68 +281,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  CertFiles dco_decode_box_autoadd_cert_files(dynamic raw) {
+  CertPairPem dco_decode_box_autoadd_cert_pair_pem(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_cert_files(raw);
+    return dco_decode_cert_pair_pem(raw);
   }
 
   @protected
-  Cipher dco_decode_box_autoadd_cipher(dynamic raw) {
+  KeyCipher dco_decode_box_autoadd_key_cipher(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_cipher(raw);
+    return dco_decode_key_cipher(raw);
   }
 
   @protected
-  Issuer dco_decode_box_autoadd_issuer(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return dco_decode_issuer(raw);
-  }
-
-  @protected
-  CertData dco_decode_cert_data(dynamic raw) {
+  CertPairPem dco_decode_cert_pair_pem(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2)
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return CertData(
-      cert: dco_decode_list_prim_u_8_strict(arr[0]),
-      key: dco_decode_list_prim_u_8_strict(arr[1]),
+    return CertPairPem(
+      chain: dco_decode_String(arr[0]),
+      key: dco_decode_String(arr[1]),
     );
-  }
-
-  @protected
-  CertFiles dco_decode_cert_files(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return CertFiles(
-      certPath: dco_decode_String(arr[0]),
-      keyPath: dco_decode_String(arr[1]),
-    );
-  }
-
-  @protected
-  CertProfile dco_decode_cert_profile(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return CertProfile.values[raw as int];
-  }
-
-  @protected
-  Cipher dco_decode_cipher(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    switch (raw[0]) {
-      case 0:
-        return Cipher_Rsa(
-          dco_decode_usize(raw[1]),
-        );
-      case 1:
-        return Cipher_Ecdsa(
-          dco_decode_ecdsa_curve(raw[1]),
-        );
-      default:
-        throw Exception("unreachable");
-    }
   }
 
   @protected
@@ -257,24 +317,26 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Issuer dco_decode_issuer(dynamic raw) {
+  int dco_decode_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeI64OrU64(raw);
+  }
+
+  @protected
+  KeyCipher dco_decode_key_cipher(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     switch (raw[0]) {
       case 0:
-        return Issuer_CertSelf();
+        return KeyCipher_Rsa(
+          dco_decode_usize(raw[1]),
+        );
       case 1:
-        return Issuer_CA(
-          dco_decode_box_autoadd_cert_files(raw[1]),
+        return KeyCipher_Ecdsa(
+          dco_decode_ecdsa_curve(raw[1]),
         );
       default:
         throw Exception("unreachable");
     }
-  }
-
-  @protected
-  KeyFormat dco_decode_key_format(dynamic raw) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return KeyFormat.values[raw as int];
   }
 
   @protected
@@ -290,33 +352,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<SubjectRdn> dco_decode_list_subject_rdn(dynamic raw) {
+  List<Rdn> dco_decode_list_rdn(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>).map(dco_decode_subject_rdn).toList();
+    return (raw as List<dynamic>).map(dco_decode_rdn).toList();
   }
 
   @protected
-  List<String>? dco_decode_opt_list_String(dynamic raw) {
+  CertPairPem? dco_decode_opt_box_autoadd_cert_pair_pem(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null ? null : dco_decode_list_String(raw);
+    return raw == null ? null : dco_decode_box_autoadd_cert_pair_pem(raw);
   }
 
   @protected
-  SubjectRdn dco_decode_subject_rdn(dynamic raw) {
+  Rdn dco_decode_rdn(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2)
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return SubjectRdn(
-      name: dco_decode_String(arr[0]),
+    return Rdn(
+      rdnType: dco_decode_rdn_type(arr[0]),
       value: dco_decode_String(arr[1]),
     );
   }
 
   @protected
-  int dco_decode_u_32(dynamic raw) {
+  RdnType dco_decode_rdn_type(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw as int;
+    return RdnType.values[raw as int];
   }
 
   @protected
@@ -352,61 +414,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  CertFiles sse_decode_box_autoadd_cert_files(SseDeserializer deserializer) {
+  CertPairPem sse_decode_box_autoadd_cert_pair_pem(
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_cert_files(deserializer));
+    return (sse_decode_cert_pair_pem(deserializer));
   }
 
   @protected
-  Cipher sse_decode_box_autoadd_cipher(SseDeserializer deserializer) {
+  KeyCipher sse_decode_box_autoadd_key_cipher(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_cipher(deserializer));
+    return (sse_decode_key_cipher(deserializer));
   }
 
   @protected
-  Issuer sse_decode_box_autoadd_issuer(SseDeserializer deserializer) {
+  CertPairPem sse_decode_cert_pair_pem(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return (sse_decode_issuer(deserializer));
-  }
-
-  @protected
-  CertData sse_decode_cert_data(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_cert = sse_decode_list_prim_u_8_strict(deserializer);
-    var var_key = sse_decode_list_prim_u_8_strict(deserializer);
-    return CertData(cert: var_cert, key: var_key);
-  }
-
-  @protected
-  CertFiles sse_decode_cert_files(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_certPath = sse_decode_String(deserializer);
-    var var_keyPath = sse_decode_String(deserializer);
-    return CertFiles(certPath: var_certPath, keyPath: var_keyPath);
-  }
-
-  @protected
-  CertProfile sse_decode_cert_profile(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_i_32(deserializer);
-    return CertProfile.values[inner];
-  }
-
-  @protected
-  Cipher sse_decode_cipher(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-
-    var tag_ = sse_decode_i_32(deserializer);
-    switch (tag_) {
-      case 0:
-        var var_field0 = sse_decode_usize(deserializer);
-        return Cipher_Rsa(var_field0);
-      case 1:
-        var var_field0 = sse_decode_ecdsa_curve(deserializer);
-        return Cipher_Ecdsa(var_field0);
-      default:
-        throw UnimplementedError('');
-    }
+    var var_chain = sse_decode_String(deserializer);
+    var var_key = sse_decode_String(deserializer);
+    return CertPairPem(chain: var_chain, key: var_key);
   }
 
   @protected
@@ -423,26 +448,26 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Issuer sse_decode_issuer(SseDeserializer deserializer) {
+  int sse_decode_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getInt64();
+  }
+
+  @protected
+  KeyCipher sse_decode_key_cipher(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var tag_ = sse_decode_i_32(deserializer);
     switch (tag_) {
       case 0:
-        return Issuer_CertSelf();
+        var var_field0 = sse_decode_usize(deserializer);
+        return KeyCipher_Rsa(var_field0);
       case 1:
-        var var_field0 = sse_decode_box_autoadd_cert_files(deserializer);
-        return Issuer_CA(var_field0);
+        var var_field0 = sse_decode_ecdsa_curve(deserializer);
+        return KeyCipher_Ecdsa(var_field0);
       default:
         throw UnimplementedError('');
     }
-  }
-
-  @protected
-  KeyFormat sse_decode_key_format(SseDeserializer deserializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_i_32(deserializer);
-    return KeyFormat.values[inner];
   }
 
   @protected
@@ -465,40 +490,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<SubjectRdn> sse_decode_list_subject_rdn(SseDeserializer deserializer) {
+  List<Rdn> sse_decode_list_rdn(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <SubjectRdn>[];
+    var ans_ = <Rdn>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
-      ans_.add(sse_decode_subject_rdn(deserializer));
+      ans_.add(sse_decode_rdn(deserializer));
     }
     return ans_;
   }
 
   @protected
-  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer) {
+  CertPairPem? sse_decode_opt_box_autoadd_cert_pair_pem(
+      SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_list_String(deserializer));
+      return (sse_decode_box_autoadd_cert_pair_pem(deserializer));
     } else {
       return null;
     }
   }
 
   @protected
-  SubjectRdn sse_decode_subject_rdn(SseDeserializer deserializer) {
+  Rdn sse_decode_rdn(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_name = sse_decode_String(deserializer);
+    var var_rdnType = sse_decode_rdn_type(deserializer);
     var var_value = sse_decode_String(deserializer);
-    return SubjectRdn(name: var_name, value: var_value);
+    return Rdn(rdnType: var_rdnType, value: var_value);
   }
 
   @protected
-  int sse_decode_u_32(SseDeserializer deserializer) {
+  RdnType sse_decode_rdn_type(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    return deserializer.buffer.getUint32();
+    var inner = sse_decode_i_32(deserializer);
+    return RdnType.values[inner];
   }
 
   @protected
@@ -538,55 +565,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_box_autoadd_cert_files(
-      CertFiles self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_cert_pair_pem(
+      CertPairPem self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_cert_files(self, serializer);
+    sse_encode_cert_pair_pem(self, serializer);
   }
 
   @protected
-  void sse_encode_box_autoadd_cipher(Cipher self, SseSerializer serializer) {
+  void sse_encode_box_autoadd_key_cipher(
+      KeyCipher self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_cipher(self, serializer);
+    sse_encode_key_cipher(self, serializer);
   }
 
   @protected
-  void sse_encode_box_autoadd_issuer(Issuer self, SseSerializer serializer) {
+  void sse_encode_cert_pair_pem(CertPairPem self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_issuer(self, serializer);
-  }
-
-  @protected
-  void sse_encode_cert_data(CertData self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_list_prim_u_8_strict(self.cert, serializer);
-    sse_encode_list_prim_u_8_strict(self.key, serializer);
-  }
-
-  @protected
-  void sse_encode_cert_files(CertFiles self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.certPath, serializer);
-    sse_encode_String(self.keyPath, serializer);
-  }
-
-  @protected
-  void sse_encode_cert_profile(CertProfile self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.index, serializer);
-  }
-
-  @protected
-  void sse_encode_cipher(Cipher self, SseSerializer serializer) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    switch (self) {
-      case Cipher_Rsa(field0: final field0):
-        sse_encode_i_32(0, serializer);
-        sse_encode_usize(field0, serializer);
-      case Cipher_Ecdsa(field0: final field0):
-        sse_encode_i_32(1, serializer);
-        sse_encode_ecdsa_curve(field0, serializer);
-    }
+    sse_encode_String(self.chain, serializer);
+    sse_encode_String(self.key, serializer);
   }
 
   @protected
@@ -602,21 +598,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_issuer(Issuer self, SseSerializer serializer) {
+  void sse_encode_i_64(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    switch (self) {
-      case Issuer_CertSelf():
-        sse_encode_i_32(0, serializer);
-      case Issuer_CA(field0: final field0):
-        sse_encode_i_32(1, serializer);
-        sse_encode_box_autoadd_cert_files(field0, serializer);
-    }
+    serializer.buffer.putInt64(self);
   }
 
   @protected
-  void sse_encode_key_format(KeyFormat self, SseSerializer serializer) {
+  void sse_encode_key_cipher(KeyCipher self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_i_32(self.index, serializer);
+    switch (self) {
+      case KeyCipher_Rsa(field0: final field0):
+        sse_encode_i_32(0, serializer);
+        sse_encode_usize(field0, serializer);
+      case KeyCipher_Ecdsa(field0: final field0):
+        sse_encode_i_32(1, serializer);
+        sse_encode_ecdsa_curve(field0, serializer);
+    }
   }
 
   @protected
@@ -637,37 +634,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_list_subject_rdn(
-      List<SubjectRdn> self, SseSerializer serializer) {
+  void sse_encode_list_rdn(List<Rdn> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
-      sse_encode_subject_rdn(item, serializer);
+      sse_encode_rdn(item, serializer);
     }
   }
 
   @protected
-  void sse_encode_opt_list_String(
-      List<String>? self, SseSerializer serializer) {
+  void sse_encode_opt_box_autoadd_cert_pair_pem(
+      CertPairPem? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
-      sse_encode_list_String(self, serializer);
+      sse_encode_box_autoadd_cert_pair_pem(self, serializer);
     }
   }
 
   @protected
-  void sse_encode_subject_rdn(SubjectRdn self, SseSerializer serializer) {
+  void sse_encode_rdn(Rdn self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_String(self.name, serializer);
+    sse_encode_rdn_type(self.rdnType, serializer);
     sse_encode_String(self.value, serializer);
   }
 
   @protected
-  void sse_encode_u_32(int self, SseSerializer serializer) {
+  void sse_encode_rdn_type(RdnType self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    serializer.buffer.putUint32(self);
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected

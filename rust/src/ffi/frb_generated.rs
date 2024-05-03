@@ -31,7 +31,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.0.0-dev.32";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -819832773;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -682055461;
 
 // Section: executor
 
@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
-fn wire_gen_tls_cert_impl(
+fn wire_gen_client_cert_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -47,7 +47,7 @@ fn wire_gen_tls_cert_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "gen_tls_cert",
+            debug_name: "gen_client_cert",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -61,24 +61,136 @@ fn wire_gen_tls_cert_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_cert_profile = <crate::api::simple::CertProfile>::sse_decode(&mut deserializer);
-            let api_domain_names = <Option<Vec<String>>>::sse_decode(&mut deserializer);
-            let api_subject = <Vec<crate::api::simple::SubjectRdn>>::sse_decode(&mut deserializer);
-            let api_issuer = <crate::api::simple::Issuer>::sse_decode(&mut deserializer);
-            let api_cipher = <crate::api::simple::Cipher>::sse_decode(&mut deserializer);
-            let api_validity = <u32>::sse_decode(&mut deserializer);
-            let api_format = <crate::api::simple::KeyFormat>::sse_decode(&mut deserializer);
+            let api_subject = <Vec<crate::api::simple::Rdn>>::sse_decode(&mut deserializer);
+            let api_key_cipher = <crate::api::simple::KeyCipher>::sse_decode(&mut deserializer);
+            let api_validity = <i64>::sse_decode(&mut deserializer);
+            let api_issuer =
+                <Option<crate::api::simple::CertPairPem>>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse((move || {
-                    crate::api::simple::gen_tls_cert(
-                        api_cert_profile,
-                        api_domain_names,
+                    crate::api::simple::gen_client_cert(
                         api_subject,
-                        api_issuer,
-                        api_cipher,
+                        api_key_cipher,
                         api_validity,
-                        api_format,
+                        api_issuer,
+                    )
+                })())
+            }
+        },
+    )
+}
+fn wire_gen_root_ca_cert_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "gen_root_ca_cert",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_subject = <Vec<crate::api::simple::Rdn>>::sse_decode(&mut deserializer);
+            let api_key_cipher = <crate::api::simple::KeyCipher>::sse_decode(&mut deserializer);
+            let api_validity = <i64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse((move || {
+                    crate::api::simple::gen_root_ca_cert(api_subject, api_key_cipher, api_validity)
+                })())
+            }
+        },
+    )
+}
+fn wire_gen_server_cert_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "gen_server_cert",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_subject = <Vec<crate::api::simple::Rdn>>::sse_decode(&mut deserializer);
+            let api_subject_alt_names = <Vec<String>>::sse_decode(&mut deserializer);
+            let api_key_cipher = <crate::api::simple::KeyCipher>::sse_decode(&mut deserializer);
+            let api_validity = <i64>::sse_decode(&mut deserializer);
+            let api_issuer =
+                <Option<crate::api::simple::CertPairPem>>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse((move || {
+                    crate::api::simple::gen_server_cert(
+                        api_subject,
+                        api_subject_alt_names,
+                        api_key_cipher,
+                        api_validity,
+                        api_issuer,
+                    )
+                })())
+            }
+        },
+    )
+}
+fn wire_gen_sub_ca_cert_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "gen_sub_ca_cert",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_subject = <Vec<crate::api::simple::Rdn>>::sse_decode(&mut deserializer);
+            let api_key_cipher = <crate::api::simple::KeyCipher>::sse_decode(&mut deserializer);
+            let api_validity = <i64>::sse_decode(&mut deserializer);
+            let api_issuer = <crate::api::simple::CertPairPem>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse((move || {
+                    crate::api::simple::gen_sub_ca_cert(
+                        api_subject,
+                        api_key_cipher,
+                        api_validity,
+                        api_issuer,
                     )
                 })())
             }
@@ -134,61 +246,15 @@ impl SseDecode for String {
     }
 }
 
-impl SseDecode for crate::api::simple::CertData {
+impl SseDecode for crate::api::simple::CertPairPem {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_cert = <Vec<u8>>::sse_decode(deserializer);
-        let mut var_key = <Vec<u8>>::sse_decode(deserializer);
-        return crate::api::simple::CertData {
-            cert: var_cert,
+        let mut var_chain = <String>::sse_decode(deserializer);
+        let mut var_key = <String>::sse_decode(deserializer);
+        return crate::api::simple::CertPairPem {
+            chain: var_chain,
             key: var_key,
         };
-    }
-}
-
-impl SseDecode for crate::api::simple::CertFiles {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_certPath = <String>::sse_decode(deserializer);
-        let mut var_keyPath = <String>::sse_decode(deserializer);
-        return crate::api::simple::CertFiles {
-            cert_path: var_certPath,
-            key_path: var_keyPath,
-        };
-    }
-}
-
-impl SseDecode for crate::api::simple::CertProfile {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <i32>::sse_decode(deserializer);
-        return match inner {
-            0 => crate::api::simple::CertProfile::Client,
-            1 => crate::api::simple::CertProfile::Server,
-            2 => crate::api::simple::CertProfile::RootCA,
-            3 => crate::api::simple::CertProfile::SubCA,
-            _ => unreachable!("Invalid variant for CertProfile: {}", inner),
-        };
-    }
-}
-
-impl SseDecode for crate::api::simple::Cipher {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut tag_ = <i32>::sse_decode(deserializer);
-        match tag_ {
-            0 => {
-                let mut var_field0 = <usize>::sse_decode(deserializer);
-                return crate::api::simple::Cipher::Rsa(var_field0);
-            }
-            1 => {
-                let mut var_field0 = <crate::api::simple::EcdsaCurve>::sse_decode(deserializer);
-                return crate::api::simple::Cipher::Ecdsa(var_field0);
-            }
-            _ => {
-                unimplemented!("");
-            }
-        }
     }
 }
 
@@ -212,34 +278,30 @@ impl SseDecode for i32 {
     }
 }
 
-impl SseDecode for crate::api::simple::Issuer {
+impl SseDecode for i64 {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        deserializer.cursor.read_i64::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for crate::api::simple::KeyCipher {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut tag_ = <i32>::sse_decode(deserializer);
         match tag_ {
             0 => {
-                return crate::api::simple::Issuer::CertSelf;
+                let mut var_field0 = <usize>::sse_decode(deserializer);
+                return crate::api::simple::KeyCipher::Rsa(var_field0);
             }
             1 => {
-                let mut var_field0 = <crate::api::simple::CertFiles>::sse_decode(deserializer);
-                return crate::api::simple::Issuer::CA(var_field0);
+                let mut var_field0 = <crate::api::simple::EcdsaCurve>::sse_decode(deserializer);
+                return crate::api::simple::KeyCipher::Ecdsa(var_field0);
             }
             _ => {
                 unimplemented!("");
             }
         }
-    }
-}
-
-impl SseDecode for crate::api::simple::KeyFormat {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <i32>::sse_decode(deserializer);
-        return match inner {
-            0 => crate::api::simple::KeyFormat::Pem,
-            1 => crate::api::simple::KeyFormat::Der,
-            _ => unreachable!("Invalid variant for KeyFormat: {}", inner),
-        };
     }
 }
 
@@ -267,45 +329,54 @@ impl SseDecode for Vec<u8> {
     }
 }
 
-impl SseDecode for Vec<crate::api::simple::SubjectRdn> {
+impl SseDecode for Vec<crate::api::simple::Rdn> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::api::simple::SubjectRdn>::sse_decode(deserializer));
+            ans_.push(<crate::api::simple::Rdn>::sse_decode(deserializer));
         }
         return ans_;
     }
 }
 
-impl SseDecode for Option<Vec<String>> {
+impl SseDecode for Option<crate::api::simple::CertPairPem> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
-            return Some(<Vec<String>>::sse_decode(deserializer));
+            return Some(<crate::api::simple::CertPairPem>::sse_decode(deserializer));
         } else {
             return None;
         }
     }
 }
 
-impl SseDecode for crate::api::simple::SubjectRdn {
+impl SseDecode for crate::api::simple::Rdn {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_rdnType = <crate::api::simple::RdnType>::sse_decode(deserializer);
         let mut var_value = <String>::sse_decode(deserializer);
-        return crate::api::simple::SubjectRdn {
-            name: var_name,
+        return crate::api::simple::Rdn {
+            rdn_type: var_rdnType,
             value: var_value,
         };
     }
 }
 
-impl SseDecode for u32 {
+impl SseDecode for crate::api::simple::RdnType {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        deserializer.cursor.read_u32::<NativeEndian>().unwrap()
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::simple::RdnType::CommonName,
+            1 => crate::api::simple::RdnType::CountryName,
+            2 => crate::api::simple::RdnType::StateOrProvinceName,
+            3 => crate::api::simple::RdnType::LocalityName,
+            4 => crate::api::simple::RdnType::OrganizationName,
+            5 => crate::api::simple::RdnType::OrganizationalUnitName,
+            _ => unreachable!("Invalid variant for RdnType: {}", inner),
+        };
     }
 }
 
@@ -344,7 +415,10 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        2 => wire_gen_tls_cert_impl(port, ptr, rust_vec_len, data_len),
+        3 => wire_gen_client_cert_impl(port, ptr, rust_vec_len, data_len),
+        4 => wire_gen_root_ca_cert_impl(port, ptr, rust_vec_len, data_len),
+        2 => wire_gen_server_cert_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire_gen_sub_ca_cert_impl(port, ptr, rust_vec_len, data_len),
         1 => wire_init_app_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
@@ -365,79 +439,23 @@ fn pde_ffi_dispatcher_sync_impl(
 // Section: rust2dart
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::CertData {
+impl flutter_rust_bridge::IntoDart for crate::api::simple::CertPairPem {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
-            self.cert.into_into_dart().into_dart(),
+            self.chain.into_into_dart().into_dart(),
             self.key.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
 }
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::CertData {}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::CertData>
-    for crate::api::simple::CertData
-{
-    fn into_into_dart(self) -> crate::api::simple::CertData {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::CertFiles {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.cert_path.into_into_dart().into_dart(),
-            self.key_path.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::CertFiles {}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::CertFiles>
-    for crate::api::simple::CertFiles
-{
-    fn into_into_dart(self) -> crate::api::simple::CertFiles {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::CertProfile {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        match self {
-            Self::Client => 0.into_dart(),
-            Self::Server => 1.into_dart(),
-            Self::RootCA => 2.into_dart(),
-            Self::SubCA => 3.into_dart(),
-        }
-    }
-}
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::simple::CertProfile
+    for crate::api::simple::CertPairPem
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::CertProfile>
-    for crate::api::simple::CertProfile
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::CertPairPem>
+    for crate::api::simple::CertPairPem
 {
-    fn into_into_dart(self) -> crate::api::simple::CertProfile {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::Cipher {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        match self {
-            crate::api::simple::Cipher::Rsa(field0) => {
-                [0.into_dart(), field0.into_into_dart().into_dart()].into_dart()
-            }
-            crate::api::simple::Cipher::Ecdsa(field0) => {
-                [1.into_dart(), field0.into_into_dart().into_dart()].into_dart()
-            }
-        }
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::Cipher {}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::Cipher> for crate::api::simple::Cipher {
-    fn into_into_dart(self) -> crate::api::simple::Cipher {
+    fn into_into_dart(self) -> crate::api::simple::CertPairPem {
         self
     }
 }
@@ -463,57 +481,60 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::EcdsaCurve>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::Issuer {
+impl flutter_rust_bridge::IntoDart for crate::api::simple::KeyCipher {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         match self {
-            crate::api::simple::Issuer::CertSelf => [0.into_dart()].into_dart(),
-            crate::api::simple::Issuer::CA(field0) => {
+            crate::api::simple::KeyCipher::Rsa(field0) => {
+                [0.into_dart(), field0.into_into_dart().into_dart()].into_dart()
+            }
+            crate::api::simple::KeyCipher::Ecdsa(field0) => {
                 [1.into_dart(), field0.into_into_dart().into_dart()].into_dart()
             }
         }
     }
 }
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::Issuer {}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::Issuer> for crate::api::simple::Issuer {
-    fn into_into_dart(self) -> crate::api::simple::Issuer {
-        self
-    }
-}
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::KeyFormat {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        match self {
-            Self::Pem => 0.into_dart(),
-            Self::Der => 1.into_dart(),
-        }
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::KeyFormat {}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::KeyFormat>
-    for crate::api::simple::KeyFormat
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::KeyCipher {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::KeyCipher>
+    for crate::api::simple::KeyCipher
 {
-    fn into_into_dart(self) -> crate::api::simple::KeyFormat {
+    fn into_into_dart(self) -> crate::api::simple::KeyCipher {
         self
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::simple::SubjectRdn {
+impl flutter_rust_bridge::IntoDart for crate::api::simple::Rdn {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
-            self.name.into_into_dart().into_dart(),
+            self.rdn_type.into_into_dart().into_dart(),
             self.value.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
 }
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::simple::SubjectRdn
-{
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::Rdn {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::Rdn> for crate::api::simple::Rdn {
+    fn into_into_dart(self) -> crate::api::simple::Rdn {
+        self
+    }
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::SubjectRdn>
-    for crate::api::simple::SubjectRdn
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simple::RdnType {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::CommonName => 0.into_dart(),
+            Self::CountryName => 1.into_dart(),
+            Self::StateOrProvinceName => 2.into_dart(),
+            Self::LocalityName => 3.into_dart(),
+            Self::OrganizationName => 4.into_dart(),
+            Self::OrganizationalUnitName => 5.into_dart(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::simple::RdnType {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simple::RdnType>
+    for crate::api::simple::RdnType
 {
-    fn into_into_dart(self) -> crate::api::simple::SubjectRdn {
+    fn into_into_dart(self) -> crate::api::simple::RdnType {
         self
     }
 }
@@ -532,53 +553,11 @@ impl SseEncode for String {
     }
 }
 
-impl SseEncode for crate::api::simple::CertData {
+impl SseEncode for crate::api::simple::CertPairPem {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <Vec<u8>>::sse_encode(self.cert, serializer);
-        <Vec<u8>>::sse_encode(self.key, serializer);
-    }
-}
-
-impl SseEncode for crate::api::simple::CertFiles {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.cert_path, serializer);
-        <String>::sse_encode(self.key_path, serializer);
-    }
-}
-
-impl SseEncode for crate::api::simple::CertProfile {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(
-            match self {
-                crate::api::simple::CertProfile::Client => 0,
-                crate::api::simple::CertProfile::Server => 1,
-                crate::api::simple::CertProfile::RootCA => 2,
-                crate::api::simple::CertProfile::SubCA => 3,
-                _ => {
-                    unimplemented!("");
-                }
-            },
-            serializer,
-        );
-    }
-}
-
-impl SseEncode for crate::api::simple::Cipher {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        match self {
-            crate::api::simple::Cipher::Rsa(field0) => {
-                <i32>::sse_encode(0, serializer);
-                <usize>::sse_encode(field0, serializer);
-            }
-            crate::api::simple::Cipher::Ecdsa(field0) => {
-                <i32>::sse_encode(1, serializer);
-                <crate::api::simple::EcdsaCurve>::sse_encode(field0, serializer);
-            }
-        }
+        <String>::sse_encode(self.chain, serializer);
+        <String>::sse_encode(self.key, serializer);
     }
 }
 
@@ -606,34 +585,26 @@ impl SseEncode for i32 {
     }
 }
 
-impl SseEncode for crate::api::simple::Issuer {
+impl SseEncode for i64 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        match self {
-            crate::api::simple::Issuer::CertSelf => {
-                <i32>::sse_encode(0, serializer);
-            }
-            crate::api::simple::Issuer::CA(field0) => {
-                <i32>::sse_encode(1, serializer);
-                <crate::api::simple::CertFiles>::sse_encode(field0, serializer);
-            }
-        }
+        serializer.cursor.write_i64::<NativeEndian>(self).unwrap();
     }
 }
 
-impl SseEncode for crate::api::simple::KeyFormat {
+impl SseEncode for crate::api::simple::KeyCipher {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(
-            match self {
-                crate::api::simple::KeyFormat::Pem => 0,
-                crate::api::simple::KeyFormat::Der => 1,
-                _ => {
-                    unimplemented!("");
-                }
-            },
-            serializer,
-        );
+        match self {
+            crate::api::simple::KeyCipher::Rsa(field0) => {
+                <i32>::sse_encode(0, serializer);
+                <usize>::sse_encode(field0, serializer);
+            }
+            crate::api::simple::KeyCipher::Ecdsa(field0) => {
+                <i32>::sse_encode(1, serializer);
+                <crate::api::simple::EcdsaCurve>::sse_encode(field0, serializer);
+            }
+        }
     }
 }
 
@@ -657,38 +628,51 @@ impl SseEncode for Vec<u8> {
     }
 }
 
-impl SseEncode for Vec<crate::api::simple::SubjectRdn> {
+impl SseEncode for Vec<crate::api::simple::Rdn> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::api::simple::SubjectRdn>::sse_encode(item, serializer);
+            <crate::api::simple::Rdn>::sse_encode(item, serializer);
         }
     }
 }
 
-impl SseEncode for Option<Vec<String>> {
+impl SseEncode for Option<crate::api::simple::CertPairPem> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
-            <Vec<String>>::sse_encode(value, serializer);
+            <crate::api::simple::CertPairPem>::sse_encode(value, serializer);
         }
     }
 }
 
-impl SseEncode for crate::api::simple::SubjectRdn {
+impl SseEncode for crate::api::simple::Rdn {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.name, serializer);
+        <crate::api::simple::RdnType>::sse_encode(self.rdn_type, serializer);
         <String>::sse_encode(self.value, serializer);
     }
 }
 
-impl SseEncode for u32 {
+impl SseEncode for crate::api::simple::RdnType {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        serializer.cursor.write_u32::<NativeEndian>(self).unwrap();
+        <i32>::sse_encode(
+            match self {
+                crate::api::simple::RdnType::CommonName => 0,
+                crate::api::simple::RdnType::CountryName => 1,
+                crate::api::simple::RdnType::StateOrProvinceName => 2,
+                crate::api::simple::RdnType::LocalityName => 3,
+                crate::api::simple::RdnType::OrganizationName => 4,
+                crate::api::simple::RdnType::OrganizationalUnitName => 5,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 

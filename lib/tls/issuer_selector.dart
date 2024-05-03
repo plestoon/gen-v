@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:gen_x/tls/models.dart';
 
-import '../ffi/api/simple.dart' as ffi;
 import '../widgets/segmented_group.dart';
 import 'ca_files_chooser.dart';
 
-enum _Issuer { self, ca }
-
 class IssuerSelector extends StatefulWidget {
-  final ffi.Issuer? initialValue;
-  final ValueChanged<ffi.Issuer> onChanged;
+  final Issuer? initialValue;
+  final ValueChanged<Issuer> onChanged;
 
   const IssuerSelector({
     super.key,
@@ -21,44 +19,33 @@ class IssuerSelector extends StatefulWidget {
 }
 
 class _IssuerSelectorState extends State<IssuerSelector> {
-  _Issuer _issuer = _Issuer.self;
-  ffi.CertFiles? _certFiles = const ffi.CertFiles(certPath: "", keyPath: "");
+  late Issuer _issuer;
 
   @override
   void initState() {
-    final initialValue = widget.initialValue;
-    if (initialValue != null) {
-      if (initialValue is ffi.Issuer_CertSelf) {
-        _issuer = _Issuer.self;
-      } else if (initialValue is ffi.Issuer_CA) {
-        _issuer = _Issuer.ca;
-        _certFiles = initialValue.field0;
-      }
-    }
+    _issuer = widget.initialValue ?? Issuer(selfSigned: true);
 
     super.initState();
   }
 
-  void _onIssuerChanged(value) {
+  void _onSigningTypeChanged(value) {
     setState(() {
-      _issuer = value;
+      if (value) {
+        _issuer = Issuer(selfSigned: value);
+      } else {
+        _issuer = Issuer(selfSigned: value, certFilePaths: CertFilePaths());
+      }
     });
 
     _onChanged();
   }
 
   void _onChanged() {
-    if (_issuer == _Issuer.self) {
-      widget.onChanged(const ffi.Issuer.certSelf());
-    } else if (_issuer == _Issuer.ca) {
-      widget.onChanged(
-        ffi.Issuer.ca(_certFiles!),
-      );
-    }
+    widget.onChanged(_issuer);
   }
 
-  void _onCertFilesChanged(ffi.CertFiles? certFiles) async {
-    _certFiles = certFiles;
+  void _onCertFilePathsChanged(CertFilePaths certFilePaths) async {
+    _issuer = _issuer.copyWith(certFilePaths: certFilePaths);
 
     _onChanged();
   }
@@ -68,23 +55,23 @@ class _IssuerSelectorState extends State<IssuerSelector> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SegmentedGroup<_Issuer>(
-          initialValue: _issuer,
+        SegmentedGroup<bool>(
+          initialValue: _issuer.selfSigned,
           showSelectedIcon: false,
           segmentsBuilder: () => [
-            const ButtonSegment(label: Text("Self"), value: _Issuer.self),
-            const ButtonSegment(label: Text("CA"), value: _Issuer.ca),
+            const ButtonSegment(label: Text("Self"), value: true),
+            const ButtonSegment(label: Text("CA"), value: false),
           ],
-          onChanged: _onIssuerChanged,
+          onChanged: _onSigningTypeChanged,
         ),
-        if (_issuer == _Issuer.ca)
+        if (!_issuer.selfSigned)
           const SizedBox(
             height: 10,
           ),
-        if (_issuer == _Issuer.ca)
+        if (!_issuer.selfSigned)
           CaFilesChooser(
-            certFiles: _certFiles,
-            onChanged: _onCertFilesChanged,
+            initialValue: _issuer.certFilePaths,
+            onChanged: _onCertFilePathsChanged,
           )
       ],
     );

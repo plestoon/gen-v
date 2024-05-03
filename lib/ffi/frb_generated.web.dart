@@ -24,25 +24,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
-  CertFiles dco_decode_box_autoadd_cert_files(dynamic raw);
+  CertPairPem dco_decode_box_autoadd_cert_pair_pem(dynamic raw);
 
   @protected
-  Cipher dco_decode_box_autoadd_cipher(dynamic raw);
+  KeyCipher dco_decode_box_autoadd_key_cipher(dynamic raw);
 
   @protected
-  Issuer dco_decode_box_autoadd_issuer(dynamic raw);
-
-  @protected
-  CertData dco_decode_cert_data(dynamic raw);
-
-  @protected
-  CertFiles dco_decode_cert_files(dynamic raw);
-
-  @protected
-  CertProfile dco_decode_cert_profile(dynamic raw);
-
-  @protected
-  Cipher dco_decode_cipher(dynamic raw);
+  CertPairPem dco_decode_cert_pair_pem(dynamic raw);
 
   @protected
   EcdsaCurve dco_decode_ecdsa_curve(dynamic raw);
@@ -51,10 +39,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_i_32(dynamic raw);
 
   @protected
-  Issuer dco_decode_issuer(dynamic raw);
+  int dco_decode_i_64(dynamic raw);
 
   @protected
-  KeyFormat dco_decode_key_format(dynamic raw);
+  KeyCipher dco_decode_key_cipher(dynamic raw);
 
   @protected
   List<String> dco_decode_list_String(dynamic raw);
@@ -63,16 +51,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  List<SubjectRdn> dco_decode_list_subject_rdn(dynamic raw);
+  List<Rdn> dco_decode_list_rdn(dynamic raw);
 
   @protected
-  List<String>? dco_decode_opt_list_String(dynamic raw);
+  CertPairPem? dco_decode_opt_box_autoadd_cert_pair_pem(dynamic raw);
 
   @protected
-  SubjectRdn dco_decode_subject_rdn(dynamic raw);
+  Rdn dco_decode_rdn(dynamic raw);
 
   @protected
-  int dco_decode_u_32(dynamic raw);
+  RdnType dco_decode_rdn_type(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -90,25 +78,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
-  CertFiles sse_decode_box_autoadd_cert_files(SseDeserializer deserializer);
+  CertPairPem sse_decode_box_autoadd_cert_pair_pem(
+      SseDeserializer deserializer);
 
   @protected
-  Cipher sse_decode_box_autoadd_cipher(SseDeserializer deserializer);
+  KeyCipher sse_decode_box_autoadd_key_cipher(SseDeserializer deserializer);
 
   @protected
-  Issuer sse_decode_box_autoadd_issuer(SseDeserializer deserializer);
-
-  @protected
-  CertData sse_decode_cert_data(SseDeserializer deserializer);
-
-  @protected
-  CertFiles sse_decode_cert_files(SseDeserializer deserializer);
-
-  @protected
-  CertProfile sse_decode_cert_profile(SseDeserializer deserializer);
-
-  @protected
-  Cipher sse_decode_cipher(SseDeserializer deserializer);
+  CertPairPem sse_decode_cert_pair_pem(SseDeserializer deserializer);
 
   @protected
   EcdsaCurve sse_decode_ecdsa_curve(SseDeserializer deserializer);
@@ -117,10 +94,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
-  Issuer sse_decode_issuer(SseDeserializer deserializer);
+  int sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
-  KeyFormat sse_decode_key_format(SseDeserializer deserializer);
+  KeyCipher sse_decode_key_cipher(SseDeserializer deserializer);
 
   @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
@@ -129,16 +106,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  List<SubjectRdn> sse_decode_list_subject_rdn(SseDeserializer deserializer);
+  List<Rdn> sse_decode_list_rdn(SseDeserializer deserializer);
 
   @protected
-  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
+  CertPairPem? sse_decode_opt_box_autoadd_cert_pair_pem(
+      SseDeserializer deserializer);
 
   @protected
-  SubjectRdn sse_decode_subject_rdn(SseDeserializer deserializer);
+  Rdn sse_decode_rdn(SseDeserializer deserializer);
 
   @protected
-  int sse_decode_u_32(SseDeserializer deserializer);
+  RdnType sse_decode_rdn_type(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -160,26 +138,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_cert_files(
-      CertFiles self, SseSerializer serializer);
+  void sse_encode_box_autoadd_cert_pair_pem(
+      CertPairPem self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_cipher(Cipher self, SseSerializer serializer);
+  void sse_encode_box_autoadd_key_cipher(
+      KeyCipher self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_issuer(Issuer self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_cert_data(CertData self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_cert_files(CertFiles self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_cert_profile(CertProfile self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_cipher(Cipher self, SseSerializer serializer);
+  void sse_encode_cert_pair_pem(CertPairPem self, SseSerializer serializer);
 
   @protected
   void sse_encode_ecdsa_curve(EcdsaCurve self, SseSerializer serializer);
@@ -188,10 +155,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
-  void sse_encode_issuer(Issuer self, SseSerializer serializer);
+  void sse_encode_i_64(int self, SseSerializer serializer);
 
   @protected
-  void sse_encode_key_format(KeyFormat self, SseSerializer serializer);
+  void sse_encode_key_cipher(KeyCipher self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
@@ -201,17 +168,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
       Uint8List self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_subject_rdn(
-      List<SubjectRdn> self, SseSerializer serializer);
+  void sse_encode_list_rdn(List<Rdn> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
+  void sse_encode_opt_box_autoadd_cert_pair_pem(
+      CertPairPem? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_subject_rdn(SubjectRdn self, SseSerializer serializer);
+  void sse_encode_rdn(Rdn self, SseSerializer serializer);
 
   @protected
-  void sse_encode_u_32(int self, SseSerializer serializer);
+  void sse_encode_rdn_type(RdnType self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);

@@ -3,6 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
+import 'package:gen_x/ffi/api/ext.dart';
+
 import '../ffi/api/simple.dart' as ffi;
 import '../widgets/chip_group.dart';
 import '../widgets/decorated_form_field.dart';
@@ -13,7 +15,7 @@ import 'issuer_selector.dart';
 import 'models.dart';
 
 class GeneratorForm extends StatefulWidget {
-  final ffi.CertProfile certProfile;
+  final CertProfile certProfile;
 
   const GeneratorForm({
     super.key,
@@ -27,12 +29,11 @@ class GeneratorForm extends StatefulWidget {
 class _GeneratorFormState extends State<GeneratorForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  List<String>? _domainNames;
-  List<SubjectRdn> _subject = [];
+  List<String>? _subjectAltNames;
+  List<Rdn> _subject = [];
   int _validity = 0;
-  ffi.Cipher _cipher = const ffi.Cipher.rsa(2048);
-  ffi.Issuer _issuer = const ffi.Issuer.certSelf();
-  final ffi.KeyFormat _keyFormat = ffi.KeyFormat.pem;
+  ffi.KeyCipher _keyCipher = const ffi.KeyCipher.rsa(2048);
+  Issuer _issuer = Issuer(selfSigned: true);
 
   bool _submitting = false;
 
@@ -43,27 +44,28 @@ class _GeneratorFormState extends State<GeneratorForm> {
       });
 
       _formKey.currentState!.save();
+
       try {
-        final data = await ffi.genTlsCert(
-          certProfile: widget.certProfile,
-          domainNames: _domainNames,
-          subject: _subject.map((rdn) => rdn.toNative()).toList(),
-          issuer: _issuer,
-          cipher: _cipher,
+        final certPair = await genCert(
+          profile: widget.certProfile,
+          subject: _subject,
+          subjectAltNames: _subjectAltNames,
+          keyCipher: _keyCipher,
           validity: _validity,
-          format: _keyFormat,
+          issuer: _issuer,
         );
         final savePath = await FilePicker.platform.saveFile(
             fileName: 'cert.zip',
             type: FileType.custom,
             allowedExtensions: ['zip']);
         if (savePath != null) {
-          _saveCert(data, savePath, _keyFormat);
+          _saveCert(certPair, savePath);
         }
       } on AnyhowException catch (e) {
         debugPrint(e.message);
-      } catch (e) {
+      } catch (e, stackTrace) {
         debugPrint(e.toString());
+        debugPrint(stackTrace.toString());
       } finally {
         setState(() {
           _submitting = false;
@@ -72,15 +74,14 @@ class _GeneratorFormState extends State<GeneratorForm> {
     }
   }
 
-  void _saveCert(ffi.CertData data, String path, ffi.KeyFormat format) {
-    final fileExt = format == ffi.KeyFormat.pem ? "pem" : "der";
+  void _saveCert(ffi.CertPairPem certPair, String path) {
     final encoder = ZipFileEncoder();
     encoder.create(path);
     encoder.addArchiveFile(
-      ArchiveFile("cert.$fileExt", data.cert.length, data.cert),
+      ArchiveFile("fullchain.pem", certPair.chain.length, certPair.chain),
     );
     encoder.addArchiveFile(
-      ArchiveFile("key.$fileExt", data.key.length, data.key),
+      ArchiveFile("key.pem", certPair.key.length, certPair.key),
     );
     encoder.close();
   }
@@ -93,7 +94,7 @@ class _GeneratorFormState extends State<GeneratorForm> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: <Widget>[
-            if (widget.certProfile == ffi.CertProfile.server)
+            if (widget.certProfile == CertProfile.server)
               DecoratedFormField<List<String>>(
                 label: "Domain names and/or IP addresses",
                 validator: (value) =>
@@ -102,17 +103,17 @@ class _GeneratorFormState extends State<GeneratorForm> {
                   onAdd: () => _addDomainName(context),
                   onChanged: state.didChange,
                 ),
-                onSaved: (value) => _domainNames = value,
+                onSaved: (value) => _subjectAltNames = value,
               ),
-            if (widget.certProfile == ffi.CertProfile.server)
+            if (widget.certProfile == CertProfile.server)
               const SizedBox(
                 height: 10,
               ),
-            DecoratedFormField<List<SubjectRdn>>(
+            DecoratedFormField<List<Rdn>>(
               label: "Subject",
               validator: (value) =>
                   (value?.isEmpty ?? true) ? "required" : null,
-              builder: (state) => ChipGroup<SubjectRdn>(
+              builder: (state) => ChipGroup<Rdn>(
                 onAdd: () => _addSubjectRdn(context),
                 onChanged: state.didChange,
               ),
@@ -147,28 +148,28 @@ class _GeneratorFormState extends State<GeneratorForm> {
             DecoratedFormField(
               label: "Cipher",
               validator: (value) => value == null ? "required" : null,
-              initialValue: _cipher,
+              initialValue: _keyCipher,
               builder: (state) => CipherSelector(
                 initialValue: state.value,
                 onChanged: (value) => state.didChange(value),
               ),
-              onSaved: (value) => _cipher = value!,
+              onSaved: (value) => _keyCipher = value!,
             ),
-            if ([ffi.CertProfile.client, ffi.CertProfile.server]
+            if ([CertProfile.client, CertProfile.server]
                 .contains(widget.certProfile))
               const SizedBox(
                 height: 10,
               ),
-            if ([ffi.CertProfile.client, ffi.CertProfile.server]
+            if ([CertProfile.client, CertProfile.server]
                 .contains(widget.certProfile))
               DecoratedFormField(
                 label: "Issuer",
                 validator: (value) {
                   if (value == null) {
                     return "required";
-                  } else if (value is ffi.Issuer_CA) {
-                    if (value.field0.certPath.isEmpty ||
-                        value.field0.keyPath.isEmpty) {
+                  } else if (!value.selfSigned) {
+                    if (value.certFilePaths!.chainPath.isEmpty ||
+                        value.certFilePaths!.keyPath.isEmpty) {
                       return "both CA files must be provided";
                     } else {
                       return null;
@@ -180,22 +181,23 @@ class _GeneratorFormState extends State<GeneratorForm> {
                 initialValue: _issuer,
                 builder: (state) => IssuerSelector(
                   initialValue: state.value,
-                  onChanged: (value) => state.didChange(value as ffi.Issuer?),
+                  onChanged: (value) => state.didChange(value),
                 ),
                 onSaved: (value) => _issuer = value!,
               ),
-            if (widget.certProfile == ffi.CertProfile.subCa)
+            if (widget.certProfile == CertProfile.subCa)
               const SizedBox(
                 height: 10,
               ),
-            if (widget.certProfile == ffi.CertProfile.subCa)
-              DecoratedFormField<ffi.CertFiles>(
+            if (widget.certProfile == CertProfile.subCa)
+              DecoratedFormField<Issuer>(
                 label: "Issuer",
                 validator: (value) {
                   if (value == null) {
                     return "required";
                   } else {
-                    if (value.certPath.isEmpty || value.keyPath.isEmpty) {
+                    if (value.certFilePaths!.chainPath.isEmpty ||
+                        value.certFilePaths!.keyPath.isEmpty) {
                       return "both CA files must be provided";
                     } else {
                       return null;
@@ -203,10 +205,12 @@ class _GeneratorFormState extends State<GeneratorForm> {
                   }
                 },
                 builder: (state) => CaFilesChooser(
-                  onChanged: (value) => state.didChange(value),
+                  onChanged: (value) => state.didChange(
+                    Issuer(selfSigned: false, certFilePaths: value),
+                  ),
                 ),
-                onSaved: (value) => _issuer = ffi.Issuer_CA(value!),
-              )
+                onSaved: (value) => _issuer = value!,
+              ),
           ],
         ),
       ),
@@ -256,11 +260,11 @@ Future<String?> _addDomainName(BuildContext context) {
   );
 }
 
-Future<SubjectRdn?> _addSubjectRdn(BuildContext context) {
-  return showDialog<SubjectRdn>(
+Future<Rdn?> _addSubjectRdn(BuildContext context) {
+  return showDialog<Rdn>(
     context: context,
     builder: (_) {
-      return FormDialog<SubjectRdn>(
+      return FormDialog<Rdn>(
         title: "Add subject RDN",
         builder: (formState) {
           return Form(
@@ -271,29 +275,30 @@ Future<SubjectRdn?> _addSubjectRdn(BuildContext context) {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DropdownMenu<RdnName>(
+                    DropdownMenu<ffi.RdnType>(
                       width: 100,
                       inputDecorationTheme:
                           const InputDecorationTheme(isDense: true),
-                      initialSelection: formState.value.name,
+                      initialSelection: formState.value.rdnType,
                       onSelected: (value) {
                         if (value != null) {
                           formState.didChange(
-                            formState.value.copyWith(name: value),
+                            formState.value.copyWith(rdnType: value),
                           );
                         }
                       },
-                      dropdownMenuEntries: RdnName.values
-                          .map<DropdownMenuEntry<RdnName>>((RdnName value) {
-                        return DropdownMenuEntry<RdnName>(
+                      dropdownMenuEntries: ffi.RdnType.values
+                          .map<DropdownMenuEntry<ffi.RdnType>>(
+                              (ffi.RdnType value) {
+                        return DropdownMenuEntry<ffi.RdnType>(
                           value: value,
-                          label: value.displayName,
+                          label: value.shortName,
                           labelWidget: SizedBox(
                             width: double.infinity,
                             child: Tooltip(
-                              message: value.description,
+                              message: value.name,
                               verticalOffset: 16,
-                              child: Text(value.displayName),
+                              child: Text(value.shortName),
                             ),
                           ),
                         );
@@ -319,8 +324,52 @@ Future<SubjectRdn?> _addSubjectRdn(BuildContext context) {
             ),
           );
         },
-        initialValue: SubjectRdn(name: RdnName.cn, value: ""),
+        initialValue: Rdn(rdnType: ffi.RdnType.commonName, value: ""),
       );
     },
   );
+}
+
+Future<ffi.CertPairPem> genCert(
+    {required CertProfile profile,
+    required List<Rdn> subject,
+    List<String>? subjectAltNames,
+    required ffi.KeyCipher keyCipher,
+    required int validity,
+    required Issuer issuer}) async {
+  try {
+    ffi.CertPairPem? nativeIssuer;
+    if (!issuer.selfSigned) {
+      nativeIssuer = await issuer.certFilePaths!.toCertPair();
+    }
+
+    List<ffi.Rdn> nativeSubject = subject.map((rdn) => rdn.native).toList();
+
+    switch (profile) {
+      case CertProfile.server:
+        return await ffi.genServerCert(
+            subject: nativeSubject,
+            subjectAltNames: subjectAltNames!,
+            keyCipher: keyCipher,
+            validity: validity,
+            issuer: nativeIssuer);
+      case CertProfile.client:
+        return await ffi.genClientCert(
+            subject: nativeSubject,
+            keyCipher: keyCipher,
+            validity: validity,
+            issuer: nativeIssuer);
+      case CertProfile.rootCa:
+        return await ffi.genRootCaCert(
+            subject: nativeSubject, keyCipher: keyCipher, validity: validity);
+      case CertProfile.subCa:
+        return await ffi.genSubCaCert(
+            subject: nativeSubject,
+            keyCipher: keyCipher,
+            validity: validity,
+            issuer: nativeIssuer!);
+    }
+  } on Object {
+    rethrow;
+  }
 }

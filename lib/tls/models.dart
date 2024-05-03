@@ -1,57 +1,52 @@
+import 'dart:io';
 
 import '../ffi/api/simple.dart' as ffi;
 
-enum RdnName {
-  cn("CN", "commonName"),
-  ou("OU", "organizationalUnit"),
-  o("O", "organizationName"),
-  l("L", "localityName"),
-  s("S", "stateOrProvinceName"),
-  c("C", "countryName"),
-  e("E", "emailAddress");
+enum CertProfile { server, client, rootCa, subCa }
 
-  const RdnName(this.displayName, this.description);
+class Issuer {
+  final bool selfSigned;
+  final CertFilePaths? certFilePaths;
 
-  final String displayName;
-  final String description;
+  Issuer({required this.selfSigned, this.certFilePaths});
 
-  @override
-  String toString() => displayName;
+  Issuer copyWith({bool? selfSigned, CertFilePaths? certFilePaths}) {
+    return Issuer(
+        selfSigned: selfSigned ?? this.selfSigned,
+        certFilePaths: certFilePaths ?? this.certFilePaths);
+  }
 }
 
-class SubjectRdn {
-  final RdnName name;
-  final String value;
+class CertFilePaths {
+  final String chainPath;
+  final String keyPath;
 
-  SubjectRdn({required this.name, required this.value});
+  CertFilePaths({this.chainPath = "", this.keyPath = ""});
 
-  SubjectRdn copyWith({RdnName? name, String? value}) {
-    return SubjectRdn(name: name ?? this.name, value: value ?? this.value);
+  CertFilePaths copyWith({String? chainPath, String? keyPath}) {
+    return CertFilePaths(
+        chainPath: chainPath ?? this.chainPath,
+        keyPath: keyPath ?? this.keyPath);
   }
 
-  @override
-  String toString() {
-    return "${name.toString()}=$value";
-  }
+  Future<ffi.CertPairPem> toCertPair() async {
+    try {
+      if (chainPath.isEmpty) {
+        throw Exception("CA certificate chain must be provided");
+      }
+      if (keyPath.isEmpty) {
+        throw Exception("CA key must be provided");
+      }
 
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
+      final chainFile = File(chainPath);
+      final chain = await chainFile.readAsString();
+
+      final keyFile = File(keyPath);
+      final key = await keyFile.readAsString();
+
+      return ffi.CertPairPem(chain: chain, key: key);
+    } on Object {
+      rethrow;
     }
-
-    if (other.runtimeType != runtimeType) {
-      return false;
-    }
-
-    return other is SubjectRdn && other.name == name && other.value == value;
   }
-
-  @override
-  int get hashCode => name.hashCode * value.hashCode;
-
-  ffi.SubjectRdn toNative() => ffi.SubjectRdn(
-        name: name.displayName,
-        value: value,
-      );
 }
