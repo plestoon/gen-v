@@ -39,7 +39,6 @@ pub enum EcdsaCurve {
 pub enum KeyCipher {
     Rsa(usize),
     Ecdsa(EcdsaCurve),
-    // Ed25519,
 }
 
 #[derive(Display)]

@@ -38,7 +38,7 @@ pub fn gen_server_cert(
     };
     let issuer_subject = issuer
         .clone()
-        .map(|issuer| issuer.chain.last().unwrap().tbs_certificate.subject.clone());
+        .map(|issuer| issuer.chain.first().unwrap().tbs_certificate.subject.clone());
 
     let profile = Profile::Leaf {
         issuer: issuer_subject.unwrap_or(subject.clone()),
@@ -78,7 +78,7 @@ pub fn gen_client_cert(
     };
     let issuer_subject = issuer
         .clone()
-        .map(|issuer| issuer.chain.last().unwrap().tbs_certificate.subject.clone());
+        .map(|issuer| issuer.chain.first().unwrap().tbs_certificate.subject.clone());
 
     let profile = Profile::Leaf {
         issuer: issuer_subject.unwrap_or(subject.clone()),
@@ -109,7 +109,7 @@ pub fn gen_sub_ca_cert(
 ) -> Result<CertPairPem> {
     let subject = convert_subject(&subject)?;
     let issuer = convert_issuer(&issuer)?;
-    let issuer_subject = issuer.chain.last().unwrap().tbs_certificate.subject.clone();
+    let issuer_subject = issuer.chain.first().unwrap().tbs_certificate.subject.clone();
 
     let profile = Profile::SubCA {
         issuer: issuer_subject,
@@ -201,7 +201,7 @@ fn convert_issuer(issuer: &CertPairPem) -> Result<CertPair> {
     let key = SigningKey::from_pem(
         &issuer.key,
         chain
-            .last()
+            .first()
             .ok_or(anyhow!("invalid issuer certificate"))?
             .tbs_certificate
             .subject_public_key_info
