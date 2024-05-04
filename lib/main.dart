@@ -16,7 +16,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'TLS Shake',
+      title: 'Gen X',
       theme: FlexThemeData.light(
         scheme: FlexScheme.brandBlue,
         useMaterial3: true,
