@@ -1,4 +1,4 @@
-import 'package:gen_x/ffi/api/simple.dart' as ffi;
+import 'simple.dart' as ffi;
 
 extension RdnTypeExt on ffi.RdnType {
   String get shortName {

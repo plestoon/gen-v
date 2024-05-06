@@ -3,26 +3,26 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - rust_lib_gen_x (0.0.1):
+  - rust_lib_gen_v (0.0.1):
     - FlutterMacOS
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
   - path_provider_foundation (from `Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin`)
-  - rust_lib_gen_x (from `Flutter/ephemeral/.symlinks/plugins/rust_lib_gen_x/macos`)
+  - rust_lib_gen_v (from `Flutter/ephemeral/.symlinks/plugins/rust_lib_gen_v/macos`)
 
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
   path_provider_foundation:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_foundation/darwin
-  rust_lib_gen_x:
-    :path: Flutter/ephemeral/.symlinks/plugins/rust_lib_gen_x/macos
+  rust_lib_gen_v:
+    :path: Flutter/ephemeral/.symlinks/plugins/rust_lib_gen_v/macos
 
 SPEC CHECKSUMS:
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
-  rust_lib_gen_x: 224a27ab2f433118ac8a5fac27c9514171862b23
+  rust_lib_gen_v: 54800105fff6baf5a3b92bc5448eefd3ea020e79
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
 

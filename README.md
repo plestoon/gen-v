@@ -1,7 +1,5 @@
-# Gen X
+# Gen V
 
 A cross-platform desktop GUI for generating TLS certificates.
 
-<img src="https://github.com/plestoon/gen-x/assets/586839/6dfcc30b-a770-43cd-9921-23b2cf1a16e9" width="600" alt="screenshot">
-
-
+<img src="https://github.com/plestoon/gen-v/assets/586839/abb6fb8f-5564-4fe3-aa1d-b5df81bb2cc8" width="600" alt="screenshot">

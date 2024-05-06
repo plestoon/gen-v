@@ -1,5 +1,5 @@
-name: gen_x
-description: "A new Flutter project."
+name: gen_v
+description: "Gen V"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -35,7 +35,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
-  rust_lib_gen_x:
+  rust_lib_gen_v:
     path: rust_builder
   flutter_rust_bridge: ^2.0.0-dev.32
   freezed_annotation: ^2.4.1

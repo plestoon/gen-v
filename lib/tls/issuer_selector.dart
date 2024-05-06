@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gen_x/tls/models.dart';
 
 import '../widgets/segmented_group.dart';
 import 'ca_files_chooser.dart';
+import 'models.dart';
 
 class IssuerSelector extends StatefulWidget {
   final Issuer? initialValue;

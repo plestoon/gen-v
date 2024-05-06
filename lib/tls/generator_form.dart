@@ -3,8 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart';
-import 'package:gen_x/ffi/api/ext.dart';
 
+import '../ffi/api/ext.dart';
 import '../ffi/api/simple.dart' as ffi;
 import '../widgets/chip_group.dart';
 import '../widgets/decorated_form_field.dart';
