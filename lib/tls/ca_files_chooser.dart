@@ -84,7 +84,7 @@ class _CaFilesChooser extends State<CaFilesChooser> {
                 style: const TextStyle(fontSize: 12),
                 decoration: const InputDecoration(
                     isDense: true,
-                    hintText: "Choose certificate chain file .."),
+                    hintText: "Choose CA certificate .."),
               ),
             ),
           ],
@@ -106,7 +106,7 @@ class _CaFilesChooser extends State<CaFilesChooser> {
                 controller: _keyPathController,
                 style: const TextStyle(fontSize: 12),
                 decoration: const InputDecoration(
-                    isDense: true, hintText: "Choose key file .."),
+                    isDense: true, hintText: "Choose CA key .."),
               ),
             ),
           ],
