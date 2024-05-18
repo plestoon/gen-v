@@ -110,4 +110,5 @@ msix_config:
   publisher_display_name: Don Han
   publisher:
   msix_version: 1.0.0.0
+  logo_path:
   store: true
